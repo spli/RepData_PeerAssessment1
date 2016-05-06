@@ -1,15 +1,31 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
-```{r loadData}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 data <- tbl_df(read.csv(unz("activity.zip","activity.csv")))
 #change date column type to Date
 data$date <- as.Date(data$date)
@@ -17,7 +33,8 @@ data$date <- as.Date(data$date)
 
 ## What is mean total number of steps taken per day?
 
-```{r meanSteps}
+
+```r
 #Group and summarise data, calculating total steps per day
 hData <- data %>% group_by(date) %>% summarise(totalSteps = sum(steps))
 hist(hData$totalSteps, main = "Histogram of Total Steps each day", 
@@ -28,9 +45,12 @@ abline(v = median(hData$totalSteps, na.rm = TRUE),
 legend("topright",legend = c("Median", "Mean"), col = c("red","blue"), lty = c(1,2))
 ```
 
+![](PA1_template_files/figure-html/meanSteps-1.png)
+
 ## What is the average daily activity pattern?
 
-```{r dailyActivity}
+
+```r
 #Group and summarise data calculating average per interval over all days
 pData <- data %>% group_by(interval) %>% 
         summarise(avgSteps = mean(steps, na.rm = TRUE))
@@ -40,13 +60,16 @@ maxInterval <- pData[pData$avgSteps == maxSteps,]$interval
 abline(v = maxInterval, col = "red")
 ```
 
-The `r maxInterval` interval contains the maximum number of steps (`r maxSteps`) on average over all days.
+![](PA1_template_files/figure-html/dailyActivity-1.png)
+
+The 835 interval contains the maximum number of steps (206.1698113) on average over all days.
 
 ## Imputing missing values
 
-There are `r sum(is.na(data$steps))` incomplete rows of data.
+There are 2304 incomplete rows of data.
 
-```{r imputeData}
+
+```r
 #Replace NAs with the median for that interval over all days
 iData <- data %>% 
         mutate(
@@ -63,11 +86,14 @@ legend("topright",legend = c("Median", "Mean"), col = c("red","blue"),
        lty = c(1,2))
 ```
 
+![](PA1_template_files/figure-html/imputeData-1.png)
+
 There is no impact on imputing missing values.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r activityPatterns}
+
+```r
 library(ggplot2)
 #Add factor column for day type, group and summarise mean steps
 days = c("Monday","Tuesday", "Wednesday", 
@@ -82,3 +108,5 @@ aPData <- iData %>%
         summarise(avgSteps = mean(steps))
 print(qplot(interval, avgSteps, data = aPData, facets = day ~ ., geom = "line"))
 ```
+
+![](PA1_template_files/figure-html/activityPatterns-1.png)
